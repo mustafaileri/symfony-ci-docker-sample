@@ -1,4 +1,10 @@
-sample_project
-==============
+### Sample Symfony3 project with Docker and Ant for CI&CD 
+### Requirements
+ant
+docker & docker-compose
 
-A Symfony project created on February 26, 2017, 8:37 pm.
+###### You can test sample project
+Go to project folder and just run:
+```bash
+ant
+```
