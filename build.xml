@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Ideasoft Build" default="build">
+    <target name="build" depends="docker-down, docker-up, composer-install, start-server,load-fixtures, run-tests, docker-down"/>
+
+    <target name="docker-up">
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="build --force-rm"/>
+        </exec>
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="up -d --no-recreate"/>
+        </exec>
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="start"/>
+        </exec>
+    </target>
+
+    <target name="composer-install">
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="exec -T web php /code/composer.phar install --working-dir=/code"/>
+        </exec>
+    </target>
+
+    <target name="start-server">
+        <exec dir="./docker" command="docker-compose" spawn="true">
+            <arg line="exec -T web /code/bin/console server:run 0.0.0.0:8000"/>
+        </exec>
+    </target>
+
+    <target name="load-fixtures">
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="exec -T web /bin/bash /code/docker/web/scripts/mysql-connection-checker.sh"/>
+        </exec>
+
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="exec -T web /code/bin/console  doctrine:schema:update --force    "/>
+        </exec>
+
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="exec -T web /code/bin/console doctrine:fixtures:load"/>
+        </exec>
+    </target>
+
+    <target name="run-tests">
+        <parallel>
+            <antcall target="run-phpunit"/>
+            <antcall target="run-behat"/>
+        </parallel>
+    </target>
+
+    <target name="run-phpunit">
+        <exec dir="./docker" executable="docker-compose" failonerror="true">
+            <arg line="exec -T web  /code/vendor/phpunit/phpunit/phpunit -c /code/phpunit.xml.dist --log-junit /code/test-reports/unit-tests.xml"/>
+        </exec>
+    </target>
+
+    <target name="run-behat">
+        <parallel>
+            <antcall target="run-behat-test">
+                <param name="env.tag" value="homepage"></param>
+            </antcall>
+            <antcall target="run-behat-test">
+                <param name="env.tag" value="product"></param>
+            </antcall>
+            <antcall target="run-behat-test">
+                <param name="env.tag" value="category"></param>
+            </antcall>
+            <antcall target="run-behat-test">
+                <param name="env.tag" value="brand"></param>
+            </antcall>
+        </parallel>
+    </target>
+
+    <target name="run-behat-test">
+        <exec dir="./docker" executable="docker-compose" failonerror="true">
+            <arg line="exec -T web /code/bin/behat --config /code/behat.yml --tags=${env.tag} -f junit --out=/code/test-reports/${env.tag} -f progress --out=std"/>
+        </exec>
+    </target>
+
+    <target name="docker-down">
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="kill"/>
+        </exec>
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="down -v"/>
+        </exec>
+        <exec dir="./docker" command="docker-compose" failonerror="true">
+            <arg line="rm -f"/>
+        </exec>
+    </target>
+</project>

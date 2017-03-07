@@ -1,0 +1,27 @@
+version: '2'
+services:
+  web:
+    build: ./web/
+    volumes:
+      - ../:/code
+    command: php -S localhost:5000
+
+  db:
+    image: mysql:5.7.15
+    environment:
+      MYSQL_DATABASE: "symfony"
+      MYSQL_ROOT_PASSWORD: "root"
+
+  selenium:
+    image: elgalu/selenium
+    environment:
+      - SELENIUM_HUB_PORT=4444
+      - VNC_FROM_PORT
+      - VNC_TO_PORT
+      - SCREEN_WIDTH=1300
+      - SCREEN_HEIGHT=999
+      - GRID=false
+      - CHROME=true
+      - FIREFOX=false
+      - RC_CHROME=false
+      - RC_FIREFOX=false
