@@ -32,7 +32,7 @@
         </exec>
 
         <exec dir="./docker" command="docker-compose" failonerror="true">
-            <arg line="exec -T web /code/bin/console  doctrine:schema:update --force    "/>
+            <arg line="exec -T web /code/bin/console  doctrine:schema:update --force"/>
         </exec>
 
         <exec dir="./docker" command="docker-compose" failonerror="true">
