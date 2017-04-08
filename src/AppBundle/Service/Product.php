@@ -1,7 +1,6 @@
 <?php
 namespace AppBundle\Service;
 
-use AppBundle\Entity\Category;
 use AppBundle\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
